@@ -24,6 +24,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>3.5.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
       <version>2.9.6</version>
@@ -106,7 +111,7 @@
           <configuration>
             <archive>
               <manifest>
-                <mainClass>se.flapsdown.kafka.admin.App</mainClass>
+                <mainClass>se.flapsdown.kafka.admin.cli.Cli</mainClass>
               </manifest>
             </archive>
             <descriptorRefs>
