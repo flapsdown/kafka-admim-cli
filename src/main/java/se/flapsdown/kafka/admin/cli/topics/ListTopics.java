@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(description = "List topics",  name = "ListTopics")
+@CommandLine.Command(description = "List topics",  name = "ListAcls")
 public class ListTopics implements Callable<Void> {
 
     @CommandLine.ParentCommand

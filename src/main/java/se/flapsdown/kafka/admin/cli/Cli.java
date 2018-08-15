@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.admin.AdminClient;
+import se.flapsdown.kafka.admin.cli.acl.Acls;
+import se.flapsdown.kafka.admin.cli.acl.ListAcls;
 import se.flapsdown.kafka.admin.cli.topics.*;
 import picocli.CommandLine;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.Callable;
 public class Cli implements Callable<Void>{
 
     @CommandLine.Option(names = {"-c", "--config"}, description = "Configuration file")
-    public String config = "path";
+    public String config = null;//"path";
 
 
     @CommandLine.Option(names = {"-s","--bootstrap-servers"})
@@ -52,7 +54,11 @@ public class Cli implements Callable<Void>{
                     .addSubcommand("create", new CreateTopic())
                     .addSubcommand("list", new ListTopics())
                     .addSubcommand("describe", new DescribeTopic())
-                    .addSubcommand("delete", new DeleteTopic()));
+                    .addSubcommand("delete", new DeleteTopic()))
+                .addSubcommand("acls", new CommandLine(new Acls())
+                        .addSubcommand("list", new ListAcls()));
+
+
         cl.parseWithHandler(new CommandLine.RunAll(), args);
     }
 
@@ -60,12 +66,16 @@ public class Cli implements Callable<Void>{
     @Override
     public Void call() throws Exception {
 
-        File f = new File(config);
-        if (!f.exists()) {
-            exit1("File " + config + " does not exist");
-        }
         Properties props = new Properties();
-        props.load(new FileInputStream(f));
+        if (config != null ) {
+            File f = new File(config);
+            if (!f.exists()) {
+                exit1("File " + config + " does not exist");
+            }
+
+            props.load(new FileInputStream(f));
+        }
+
         if (bootstrapServers != null ) {
             props.put("bootstrap.servers", bootstrapServers);
         }
