@@ -20,6 +20,7 @@ public class ResponseHandler {
             e.printStackTrace();
         } catch (ExecutionException e) {
             cli.print(new Failed(e.getCause().getMessage()));
+            e.printStackTrace();
         }
     }
 
@@ -31,6 +32,7 @@ public class ResponseHandler {
             e.printStackTrace();
         } catch (ExecutionException e) {
             cli.print(new Failed(e.getCause().getMessage()));
+            e.printStackTrace();
         }
     }
 

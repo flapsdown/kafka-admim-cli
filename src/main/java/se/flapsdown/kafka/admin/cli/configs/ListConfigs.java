@@ -1,22 +1,26 @@
-package se.flapsdown.kafka.admin.cli.acl;
+package se.flapsdown.kafka.admin.cli.configs;
 
-import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.common.acl.*;
-import org.apache.kafka.common.resource.*;
+import org.apache.kafka.common.config.ConfigResource;
+import org.apache.kafka.common.resource.ResourceFilter;
+import org.apache.kafka.common.resource.ResourceType;
 import picocli.CommandLine;
+import se.flapsdown.kafka.admin.cli.acl.ListAcls;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-@CommandLine.Command(description = "List acls",  name = "ListAcls")
-public class ListAcls implements Callable<Void> {
+@CommandLine.Command(description = "List configs",  name = "ListAcls")
+public class ListConfigs implements Callable<Void> {
 
     @CommandLine.ParentCommand
-    public Acls acls;
+    public Configs configs;
 
     @CommandLine.Option(names = {"-n", "--name"}, description = "Resource name (required)", required = true)
     private String name;
@@ -36,28 +40,34 @@ public class ListAcls implements Callable<Void> {
         //        new AclBindingFilter(new ResourcePatternFilter(ResourceType.TOPIC, name, PatternType.MATCH), ListAcls.ANY);
 
 
-        List<AclBinding> collect = Arrays.asList(name.split(","))
+
+        List<ConfigResource> collect = Arrays.asList(name.split(","))
                 .stream()
-                .map(s -> new AclBindingFilter(new ResourceFilter(ResourceType.fromString(type), s), ListAcls.ANY))
-                .map(filter -> acls.cli.adminClient().describeAcls(filter))
-                .map(result -> result.values())
-                .map(collectionKafkaFuture -> waitForResponse(collectionKafkaFuture))
-                .flatMap(aclBindings -> aclBindings.stream())
+                .map(s -> new ConfigResource(ConfigResource.Type.valueOf(type), s))
                 .collect(Collectors.toList());
 
-        acls.cli.print(collect);
-
-        return null;
-    }
-
-    private Collection<AclBinding> waitForResponse(KafkaFuture<Collection<AclBinding>> collectionKafkaFuture) {
         try {
-            return collectionKafkaFuture.get();
+            Map<ConfigResource, Config> configResourceConfigMap = configs.cli.adminClient().describeConfigs(
+                    collect).all().get();
+
+            Map<String, Config> newMap = new HashMap<>();
+
+            for (ConfigResource res : configResourceConfigMap.keySet()) {
+                Config config = configResourceConfigMap.get(res);
+                newMap.put(res.name(), config);
+            }
+
+            configs.cli.print(newMap);
+
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
+
+
         return null;
     }
 }

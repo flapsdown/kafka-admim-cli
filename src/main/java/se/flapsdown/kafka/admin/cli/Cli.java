@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.admin.AdminClient;
 import se.flapsdown.kafka.admin.cli.acl.Acls;
 import se.flapsdown.kafka.admin.cli.acl.ListAcls;
+import se.flapsdown.kafka.admin.cli.configs.Configs;
+import se.flapsdown.kafka.admin.cli.configs.ListConfigs;
 import se.flapsdown.kafka.admin.cli.topics.*;
 import picocli.CommandLine;
 
@@ -55,6 +57,8 @@ public class Cli implements Callable<Void>{
                     .addSubcommand("list", new ListTopics())
                     .addSubcommand("describe", new DescribeTopic())
                     .addSubcommand("delete", new DeleteTopic()))
+                .addSubcommand("configs", new CommandLine(new Configs())
+                        .addSubcommand("list", new ListConfigs()))
                 .addSubcommand("acls", new CommandLine(new Acls())
                         .addSubcommand("list", new ListAcls()));
 
